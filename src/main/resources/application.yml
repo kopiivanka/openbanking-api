@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: openbanking-api
+  datasource:
+    url: jdbc:postgresql://localhost:5433/openbanking
+    driver-class-name: org.postgresql.Driver
+    username: openbanking
+    password: openbanking
+  jooq:
+    sql-dialect: POSTGRES
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:${server.port:8080}
+
+server:
+  port: 8080
+
+openbanking:
+  external:
+    base-url: http://localhost:${server.port:8080}/mock/psd2
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000
+  oauth:
+    client-id: openbanking-client
+    client-secret: openbanking-secret
+    scope: accounts:read payments:write
+  seed:
+    enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    org.springframework.security: INFO

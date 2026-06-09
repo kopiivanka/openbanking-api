@@ -1,0 +1,29 @@
+{
+  "accounts": [
+    {
+      "iban": "DE89370400440532013000",
+      "balance": { "amount": 5000.00, "currency": "EUR" },
+      "transactions": [
+        { "id": "tx-001", "bookingDate": "2026-06-08T10:15:00Z", "amount": -42.50, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Coffee shop" },
+        { "id": "tx-002", "bookingDate": "2026-06-07T18:30:00Z", "amount": -120.00, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Groceries" },
+        { "id": "tx-003", "bookingDate": "2026-06-06T09:00:00Z", "amount": 2500.00, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Salary" },
+        { "id": "tx-004", "bookingDate": "2026-06-05T12:00:00Z", "amount": -15.99, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Streaming subscription" },
+        { "id": "tx-005", "bookingDate": "2026-06-04T08:45:00Z", "amount": -65.00, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Fuel" },
+        { "id": "tx-006", "bookingDate": "2026-06-03T20:10:00Z", "amount": -32.40, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Restaurant" },
+        { "id": "tx-007", "bookingDate": "2026-06-02T07:00:00Z", "amount": -9.50, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Bakery" },
+        { "id": "tx-008", "bookingDate": "2026-06-01T14:00:00Z", "amount": -200.00, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Rent share" },
+        { "id": "tx-009", "bookingDate": "2026-05-31T11:00:00Z", "amount": -55.00, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Pharmacy" },
+        { "id": "tx-010", "bookingDate": "2026-05-30T17:00:00Z", "amount": -78.25, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Electronics" },
+        { "id": "tx-011", "bookingDate": "2026-05-29T13:00:00Z", "amount": -19.00, "currency": "EUR", "counterpartyIban": "DE02500105170137075030", "description": "Books" }
+      ]
+    },
+    {
+      "iban": "GB29NWBK60161331926819",
+      "balance": { "amount": 1250.75, "currency": "GBP" },
+      "transactions": [
+        { "id": "tx-101", "bookingDate": "2026-06-08T09:00:00Z", "amount": -5.00, "currency": "GBP", "counterpartyIban": "GB94BARC10201530093459", "description": "Transport" },
+        { "id": "tx-102", "bookingDate": "2026-06-07T12:00:00Z", "amount": 300.00, "currency": "GBP", "counterpartyIban": "GB94BARC10201530093459", "description": "Refund" }
+      ]
+    }
+  ]
+}

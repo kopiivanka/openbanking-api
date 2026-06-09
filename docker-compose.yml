@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: openbanking-postgres
+    environment:
+      POSTGRES_DB: openbanking
+      POSTGRES_USER: openbanking
+      POSTGRES_PASSWORD: openbanking
+    ports:
+      - "5433:5432"
+    volumes:
+      - openbanking-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openbanking -d openbanking"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  openbanking-pgdata:
