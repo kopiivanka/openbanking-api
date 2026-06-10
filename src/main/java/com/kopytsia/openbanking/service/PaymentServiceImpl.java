@@ -12,7 +12,6 @@ import com.kopytsia.openbanking.repository.PaymentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -30,8 +29,13 @@ public class PaymentServiceImpl implements PaymentService {
         this.bankClient = bankClient;
     }
 
+    /**
+     * Note: intentionally not @Transactional. Each step (REJECTED save, PENDING save,
+     * COMPLETED/FAILED update) must commit on its own. If the whole method ran in one
+     * tx, an external-bank failure would roll back the FAILED update along with the
+     * PENDING insert, leaving no audit trail in the local DB.
+     */
     @Override
-    @Transactional
     public Payment initiate(PaymentRequest request) {
         var balance = bankClient.fetchBalance(request.debtorIban());
 
@@ -75,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .debtorIban(request.debtorIban())
                 .creditorIban(request.creditorIban())
                 .amount(request.amount())
-                .currency(request.currency())
+                .currency(request.currency().toUpperCase())
                 .status(status)
                 .externalReference(externalReference)
                 .failureReason(failureReason)

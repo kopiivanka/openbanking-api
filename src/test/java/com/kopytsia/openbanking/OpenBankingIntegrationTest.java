@@ -140,6 +140,70 @@ class OpenBankingIntegrationTest {
     }
 
     @Test
+    void returns_400_for_malformed_json_body() throws Exception {
+        String token = obtainToken("payments:write");
+
+        mockMvc.perform(post("/api/payments/initiate")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{not json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("malformed_request")));
+    }
+
+    @Test
+    void returns_415_for_unsupported_content_type() throws Exception {
+        String token = obtainToken("payments:write");
+
+        mockMvc.perform(post("/api/payments/initiate")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("hello"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.error", is("unsupported_media_type")));
+    }
+
+    @Test
+    void returns_405_for_wrong_method() throws Exception {
+        String token = obtainToken("accounts:read");
+
+        mockMvc.perform(post("/api/accounts/{iban}/balance", DEBTOR)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.error", is("method_not_allowed")));
+    }
+
+    @Test
+    void persists_failed_payment_when_external_bank_errors() throws Exception {
+        WIREMOCK.stubFor(WireMock.get(WireMock.urlEqualTo("/accounts/" + DEBTOR + "/balance"))
+                .willReturn(WireMock.okJson("""
+                        {"iban":"%s","amount":500.00,"currency":"EUR"}
+                        """.formatted(DEBTOR))));
+        WIREMOCK.stubFor(WireMock.post(WireMock.urlEqualTo("/payments"))
+                .willReturn(WireMock.aResponse().withStatus(500).withBody("boom")));
+
+        String token = obtainToken("payments:write");
+        var body = objectMapper.writeValueAsString(
+                new PaymentRequest(DEBTOR, CREDITOR, new BigDecimal("100.00"), "EUR"));
+
+        mockMvc.perform(post("/api/payments/initiate")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.error", is("external_bank_error")));
+
+        // The FAILED update must have committed before the exception propagated.
+        // This is the regression guard for the @Transactional-on-initiate rollback bug.
+        var jdbc = new org.springframework.jdbc.core.JdbcTemplate(
+                new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                        POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword()));
+        Long failedCount = jdbc.queryForObject(
+                "SELECT count(*) FROM payments WHERE status = 'FAILED'", Long.class);
+        org.assertj.core.api.Assertions.assertThat(failedCount).isGreaterThanOrEqualTo(1L);
+    }
+
+    @Test
     void rejects_payment_when_insufficient_funds() throws Exception {
         WIREMOCK.stubFor(WireMock.get(WireMock.urlEqualTo("/accounts/" + DEBTOR + "/balance"))
                 .willReturn(WireMock.okJson("""
