@@ -29,14 +29,16 @@ Bonus endpoints:
 
 ## Run
 
-Start Postgres (host port `5433`), generate jOOQ classes from the live schema,
-then run the app:
+Start Postgres (host port `5433`) and run the app:
 
 ```bash
 docker compose up -d
-./gradlew generateJooq    # only needed when the schema changes
 ./gradlew bootRun
 ```
+
+The jOOQ-generated sources are committed under `src/generated/java`, so a fresh
+clone builds without needing Postgres running for codegen. Regenerate only
+when the schema changes (see below).
 
 Spring Boot applies Flyway migrations on startup, so the schema is created
 automatically the first time. On first run the `PaymentSeeder` inserts 5
@@ -45,10 +47,9 @@ sample payments (one per status) so the `payments` table is not empty.
 ### Adding a schema change
 
 1. Drop a new `VN__description.sql` file in `src/main/resources/db/migration`.
-2. Apply it to the dev DB (`docker exec ... psql < VN__...sql` or just restart
-   the app — Spring Flyway will pick it up).
-3. Run `./gradlew generateJooq` to regenerate the typed `PAYMENTS` table /
-   `PaymentsRecord` classes used by `PaymentRepository`.
+2. Restart the app — Spring Flyway applies the migration to the dev DB.
+3. Run `./gradlew generateJooq` to refresh the typed classes in
+   `src/generated/java` against the live schema, and commit those.
 
 ### Database access
 
@@ -124,7 +125,7 @@ external call never happens before the local record exists.
 com.kopytsia.openbanking
 ├── controller/    REST controllers, GlobalExceptionHandler, ApiError
 ├── service/       PaymentService / AccountService interfaces + Impl classes
-├── repository/    Payment entity, PaymentStatus, PaymentRepository (jOOQ)
+├── repository/    Payment (domain object), PaymentStatus, PaymentRepository (jOOQ)
 ├── client/        ExternalBankClient, WebClient config, request/response DTOs
 ├── exception/     All application exceptions
 ├── dto/           API request/response records (PaymentRequest, PaymentResponse, …)

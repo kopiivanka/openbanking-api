@@ -48,6 +48,11 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// jOOQ-generated sources live under src/generated/java and are committed to git so the
+// project can be built without a running Postgres (codegen needs the live schema).
+// Re-run `./gradlew generateJooq` only when the schema changes.
+sourceSets.main.java.srcDirs += 'src/generated/java'
+
 jooq {
     version = '3.19.15'
     configurations {
@@ -70,7 +75,7 @@ jooq {
                     }
                     target {
                         packageName = 'com.kopytsia.openbanking.jooq'
-                        directory = 'build/generated-src/jooq/main'
+                        directory = 'src/generated/java'
                     }
                     strategy.name = 'org.jooq.codegen.DefaultGeneratorStrategy'
                 }
